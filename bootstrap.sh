@@ -18,6 +18,7 @@ kubectl apply -f .infrastructure/app/clusterIp.yml
 kubectl apply -f .infrastructure/app/nodeport.yml
 kubectl apply -f .infrastructure/app/hpa.yml
 kubectl apply -f .infrastructure/app/deployment.yml
+kubectl apply -f .infrastructure/app/todoapp-pod.yml
 
 # Install Ingress Controller (pinned version)
 kubectl apply -f "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
