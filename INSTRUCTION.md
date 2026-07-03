@@ -9,10 +9,10 @@ This document describes how to validate node taints/labels, StatefulSet and Depl
 
 ---
 
-## 1. Inspect Node Labels
+## 1. Inspect Nodes for Labels and Taints
 
 ```bash
-kubectl get nodes --show-labels
+kubectl get nodes -o custom-columns=NAME:.metadata.name,LABELS:.metadata.labels,TAINTS:.spec.taints
 ```
 
 **Expected:** Two nodes labeled `app=mysql`, three nodes labeled `app=todoapp`, with taints shown after step 2 is applied.
@@ -76,3 +76,37 @@ kubectl get pods -n todoapp -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}
 ```
 
 **Expected:** Two distinct node names printed (no duplicates).
+
+---
+
+## 5. Standalone ToDo App Pod Validation
+
+```bash
+kubectl get pod todoapp-pod -n todoapp -o wide
+```
+
+**Expected:** `STATUS` is `Running`, `READY` is `1/1`.
+
+```bash
+kubectl describe pod todoapp-pod -n todoapp
+```
+
+**Expected:** No `FailedScheduling` or `FailedMount` events; container image, env vars, and volume mounts match the Deployment's container spec.
+
+```bash
+kubectl exec -n todoapp todoapp-pod -- curl -sv http://localhost:8080/api/health
+```
+
+**Expected:** `HTTP/1.1 200 OK` response, confirming the app inside the standalone Pod is healthy independent of the Deployment.
+
+---
+
+## 6. Validate `bootstrap.sh`
+
+```bash
+./bootstrap.sh
+kubectl get all -n mysql
+kubectl get all -n todoapp
+```
+
+**Expected:** Script exits without errors; all expected resources (StatefulSet, Deployment, Services, etc.) are present and running in both namespaces.
